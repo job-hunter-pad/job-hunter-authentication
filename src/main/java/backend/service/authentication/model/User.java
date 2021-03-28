@@ -16,10 +16,6 @@ public class User {
 
     @NotNull
     @NotEmpty
-    private String id;
-
-    @NotNull
-    @NotEmpty
     private String name;
 
     @ValidEmail
@@ -36,8 +32,7 @@ public class User {
     @NotEmpty
     private UserType userType;
 
-    public User(@NotNull @NotEmpty String id, @NotNull @NotEmpty String name, @NotNull @NotEmpty String email, @NotNull @NotEmpty String password, String matchingPassword, @NotNull @NotEmpty UserType userType) {
-        this.id = id;
+    public User(@NotNull @NotEmpty String name, @NotNull @NotEmpty String email, @NotNull @NotEmpty String password, String matchingPassword, @NotNull @NotEmpty UserType userType) {
         this.name = name;
         this.email = email;
         this.password = password;
