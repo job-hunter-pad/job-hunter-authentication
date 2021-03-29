@@ -1,4 +1,4 @@
-package backend.service.authentication.controller;
+package backend.service.authentication.controller.requests;
 
 import lombok.Getter;
 
@@ -9,5 +9,6 @@ public class RegisterRequest {
     private String password;
     private String email;
     private String userType;
+
 
 }

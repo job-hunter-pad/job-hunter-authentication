@@ -1,4 +1,4 @@
-package backend.service.authentication.model.services;
+package backend.service.authentication.model.validators;
 
 
 import javax.validation.ConstraintValidator;

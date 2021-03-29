@@ -1,10 +1,8 @@
-package backend.service.authentication.controller;
+package backend.service.authentication.controller.responses;
 
-import lombok.Setter;
-
-@Setter
 public class ValidateEmailResponse {
-    private String message;
+
+    public String message;
 
     public ValidateEmailResponse(String message) {
         this.message = message;
