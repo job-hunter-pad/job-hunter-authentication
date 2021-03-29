@@ -1,4 +1,4 @@
-package backend.service.authentication.controller;
+package backend.service.authentication.controller.requests;
 
 import lombok.Getter;
 

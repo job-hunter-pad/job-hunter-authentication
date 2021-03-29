@@ -1,7 +1,10 @@
 package backend.service.authentication.controller;
 
+import backend.service.authentication.controller.requests.*;
+import backend.service.authentication.controller.responses.LoginResponse;
+import backend.service.authentication.controller.responses.RegisterResponse;
+import backend.service.authentication.controller.responses.ValidateEmailResponse;
 import backend.service.authentication.model.User;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,15 +43,15 @@ public class UserController {
         return ResponseEntity.badRequest();
     }
 
-    //not working
-    @GetMapping("/validateEmail")
-    Object validateEmail(@RequestBody ValidateEmailRequest validateEmailRequest, @RequestParam int emailCase) {
-        if (emailCase == 1) {
-            return new ValidateEmailResponse("Account validated");
+    @PostMapping("/validateEmail")
+    public Object validateEmail(@RequestBody ValidateEmailRequest validateEmailRequest,@RequestParam int emailCase){
+        if(emailCase==1){
+           return new ValidateEmailResponse("Account validated");
         }
-        if (emailCase == 2) {
-            return new ValidateEmailResponse("Account already validated");
+        if(emailCase==2){
+          return new ValidateEmailResponse("Account not validated");
         }
         return ResponseEntity.badRequest();
     }
+
 }
