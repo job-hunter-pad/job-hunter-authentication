@@ -5,6 +5,7 @@ import backend.service.authentication.controller.requests.ValidateEmailRequest;
 import backend.service.authentication.controller.responses.LoginResponse;
 import backend.service.authentication.controller.responses.RegisterResponse;
 import backend.service.authentication.controller.responses.ValidateEmailResponse;
+import backend.service.authentication.kafka.model.Email;
 import backend.service.authentication.model.User;
 import backend.service.authentication.model.UserType;
 import backend.service.authentication.repository.UserRepository;
@@ -64,6 +65,19 @@ public class UserController {
             final String token = jwtTokenUtil.generateToken(user);
             registerResponse.setSuccess(true);
             registerResponse.setLogin_token(token);
+
+            // send validation email
+            Email email = new Email();
+
+            email.setEmail(user.getEmail());
+            email.setSubject("Account Validation Job Hunter");
+            email.setBody(
+                    "<h1>Wellcome " + user.getName() + "</h1>" +
+                            "<br><br>" +
+                            "<h4>You are almost ready to start enjoying Job Hunter</h4>" +
+                            "<br>" +
+                            "<a href=\"localhost:8080/validateEmail/" + token + "\">Click here to confirm your account</a>"
+            );
         }
         return registerResponse;
     }
