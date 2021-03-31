@@ -1,5 +1,6 @@
 package backend.service.authentication.repository.token;
 
+import backend.service.authentication.kafka.model.Email;
 import backend.service.authentication.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -49,6 +50,12 @@ public class JwtTokenUtil implements Serializable {
         Map<String, Object> claims = new HashMap<>();
         return doGenerateToken(claims, user.getId());
     }
+
+    public String generateToken(Email email) {
+        Map<String, Object> claims = new HashMap<>();
+        return doGenerateToken(claims, email.getEmail());
+    }
+
 
     private String doGenerateToken(Map<String, Object> claims, String subject) {
 

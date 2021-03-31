@@ -1,11 +1,11 @@
 package backend.service.authentication.controller;
 
 import backend.service.authentication.controller.requests.RegisterRequest;
-import backend.service.authentication.controller.requests.ValidateEmailRequest;
 import backend.service.authentication.controller.responses.LoginResponse;
 import backend.service.authentication.controller.responses.RegisterResponse;
 import backend.service.authentication.controller.responses.ValidateEmailResponse;
 import backend.service.authentication.kafka.model.Email;
+import backend.service.authentication.kafka.producer.Producer;
 import backend.service.authentication.model.User;
 import backend.service.authentication.model.UserType;
 import backend.service.authentication.repository.UserRepository;
@@ -24,6 +24,9 @@ public class UserController {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private Producer kafkaProducer;
 
     @PostMapping("/login")
     LoginResponse login(@RequestBody User user) {
@@ -68,28 +71,30 @@ public class UserController {
 
             // send validation email
             Email email = new Email();
+            final String account_key = jwtTokenUtil.generateToken(email);
 
             email.setEmail(user.getEmail());
             email.setSubject("Account Validation Job Hunter");
             email.setBody(
-                    "<h1>Wellcome " + user.getName() + "</h1>" +
+                    "<h1>Welcome " + user.getName() + "</h1>" +
                             "<br><br>" +
                             "<h4>You are almost ready to start enjoying Job Hunter</h4>" +
                             "<br>" +
-                            "<a href=\"localhost:8080/validateEmail/" + token + "\">Click here to confirm your account</a>"
+                            "<a href=\"localhost:8080/validateEmail/" + account_key + "\">Click here to confirm your account</a>"
             );
+
+            kafkaProducer.postEmail(email);
+
         }
         return registerResponse;
     }
 
     @GetMapping("/validateEmail/{account_key}")
-    ValidateEmailResponse validateAccount(@RequestBody ValidateEmailRequest validateEmailRequest,
-                                          @PathVariable String account_key) {
-        if (checkIfAccountValidated(validateEmailRequest.getLogin_token())) {
+    ValidateEmailResponse validateAccount(@PathVariable String account_key) {
+        if (checkIfAccountValidated(account_key)) {
             return new ValidateEmailResponse("Account already validated");
         } else {
-            validateEmail(validateEmailRequest.getLogin_token());
-            //ce fac cu account_key?
+            validateEmail(account_key);
             return new ValidateEmailResponse("Account validated");
         }
     }
@@ -99,17 +104,19 @@ public class UserController {
         return userRepository.findByEmail(email);
     }
 
-    private boolean checkIfAccountValidated(String token) {
-        String id = jwtTokenUtil.getIdFromToken(token);
-        Optional<User> user = userRepository.findById(id);
-        return user.map(User::isValid).orElse(false);
+    private boolean checkIfAccountValidated(String account_key) {
+        String id = jwtTokenUtil.getIdFromToken(account_key);
+        User user = userRepository.findByEmail(id);
+        return user != null;
     }
 
-    private void validateEmail(String token) {
-        String id = jwtTokenUtil.getIdFromToken(token);
-        Optional<User> user = userRepository.findById(id);
-        user.ifPresent(value -> value.setValid(true));
-        user.ifPresent(value -> userRepository.save(value));
+    private void validateEmail(String account_key) {
+        String email = jwtTokenUtil.getIdFromToken(account_key);
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.setValid(true);
+            userRepository.save(user);
+        }
     }
 
     private boolean checkCredentials(User user) {
