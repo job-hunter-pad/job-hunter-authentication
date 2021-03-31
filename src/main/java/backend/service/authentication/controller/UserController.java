@@ -11,9 +11,7 @@ import backend.service.authentication.repository.UserRepository;
 import backend.service.authentication.repository.token.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -70,13 +68,15 @@ public class UserController {
         return registerResponse;
     }
 
-    @PostMapping("/validateEmail")
-    ValidateEmailResponse validateAccount(@RequestBody ValidateEmailRequest validateEmailRequest) {
+    @GetMapping("/validateEmail/{account_key}")
+    ValidateEmailResponse validateAccount(@RequestBody ValidateEmailRequest validateEmailRequest,
+                                          @PathVariable String account_key) {
         if (checkIfAccountValidated(validateEmailRequest.getLogin_token())) {
-            return new ValidateEmailResponse("Account validated");
+            return new ValidateEmailResponse("Account already validated");
         } else {
             validateEmail(validateEmailRequest.getLogin_token());
-            return new ValidateEmailResponse("Account not validated");
+            //ce fac cu account_key?
+            return new ValidateEmailResponse("Account validated");
         }
     }
 
