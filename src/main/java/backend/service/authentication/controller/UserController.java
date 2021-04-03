@@ -80,7 +80,7 @@ public class UserController {
                             "<br><br>" +
                             "<h4>You are almost ready to start enjoying Job Hunter</h4>" +
                             "<br>" +
-                            "<a href=\"localhost:8080/validateEmail/" + account_key + "\">Click here to confirm your account</a>"
+                            "<a href=\"localhost:8090/validateEmail/" + account_key + "\">Click here to confirm your account</a>"
             );
 
             kafkaProducer.postEmail(email);
