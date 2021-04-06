@@ -39,14 +39,16 @@ public class UserController {
         if (checkAccountExists(user.getEmail()) != null) {
             if (checkCredentials(user)) {
                 User dbUser = userRepository.findByEmail(user.getEmail());
-                final String token = jwtTokenUtil.generateToken(dbUser);
-                if (checkIfAccountValidated(token)) {
+
+                if (dbUser.isValid()) {
                     loginResponse.setSuccess(true);
+                    final String token = jwtTokenUtil.generateToken(dbUser);
                     loginResponse.setLogin_token(token);
                 } else {
                     loginResponse.setSuccess(false);
                     loginResponse.setFail_message("Account not validated");
                 }
+
             } else {
                 loginResponse.setSuccess(false);
                 loginResponse.setFail_message("Invalid credentials");
