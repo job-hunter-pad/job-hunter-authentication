@@ -10,11 +10,16 @@ import backend.service.authentication.model.User;
 import backend.service.authentication.model.UserType;
 import backend.service.authentication.repository.UserRepository;
 import backend.service.authentication.repository.token.JwtTokenUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class UserController {
@@ -71,16 +76,19 @@ public class UserController {
 
             // send validation email
             Email email = new Email();
-            final String account_key = jwtTokenUtil.generateToken(email);
-
             email.setEmail(user.getEmail());
             email.setSubject("Account Validation Job Hunter");
+
+            final String account_key = jwtTokenUtil.generateToken(email);
+            final String validationUrl = "http://localhost:8090/validateEmail/" + account_key;
+
             email.setBody(
                     "<h1>Welcome " + user.getName() + "</h1>" +
                             "<br><br>" +
                             "<h4>You are almost ready to start enjoying Job Hunter</h4>" +
                             "<br>" +
-                            "<a href=\"localhost:8090/validateEmail/" + account_key + "\">Click here to confirm your account</a>"
+//                            "<p>" + validationUrl + "</p><br>" +
+                            "<a href=\"" + validationUrl + "\">Click here to confirm your account</a>"
             );
 
             kafkaProducer.postEmail(email);
@@ -89,16 +97,31 @@ public class UserController {
         return registerResponse;
     }
 
-    @GetMapping("/validateEmail/{account_key}")
-    ValidateEmailResponse validateAccount(@PathVariable String account_key) {
-        if (checkIfAccountValidated(account_key)) {
-            return new ValidateEmailResponse("Account already validated");
-        } else {
-            validateEmail(account_key);
-            return new ValidateEmailResponse("Account validated");
-        }
-    }
+    @PostMapping("/validateEmail")
+    ValidateEmailResponse validateAccount(@RequestBody String requestBodyJson) {
+        String account_key = "";
 
+        try {
+            JsonNode root = new ObjectMapper().readTree(requestBodyJson);
+            account_key = root.get("account_key").textValue();
+            if (!account_key.isEmpty()) {
+                if (checkIfAccountValidated(account_key)) {
+                    return new ValidateEmailResponse("Account already validated");
+                } else {
+                    validateEmail(account_key);
+                    return new ValidateEmailResponse("Account validated");
+                }
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            if (!account_key.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid account key");
+            }
+        }
+
+        return null;
+    }
 
     private User checkAccountExists(String email) {
         return userRepository.findByEmail(email);
@@ -107,7 +130,7 @@ public class UserController {
     private boolean checkIfAccountValidated(String account_key) {
         String id = jwtTokenUtil.getIdFromToken(account_key);
         User user = userRepository.findByEmail(id);
-        return user != null;
+        return user.isValid();
     }
 
     private void validateEmail(String account_key) {
