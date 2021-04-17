@@ -15,13 +15,15 @@ public class UserProfile {
     @Id
     private String userId;
     private String name;
+    private String email;
     private UserType userType;
     private String location;
     private String description;
     private String phoneNumber;
     private List<Review> reviews;
 
-    public UserProfile(String userId, String name, UserType userType) {
+    public UserProfile(String userId, String email, String name, UserType userType) {
+        this.email = email;
         this.userId = userId;
         this.name = name;
         this.userType = userType;

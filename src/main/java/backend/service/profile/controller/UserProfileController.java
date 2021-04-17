@@ -42,8 +42,9 @@ public class UserProfileController {
 
     @PostMapping("/profile/{userId}/update")
     UserProfile updateProfile(@PathVariable String userId, @RequestBody ProfileDTO profileDTO) {
-        UserProfile newUserProfile = new UserProfile(userId, profileDTO.getName(), null);
+        UserProfile newUserProfile = new UserProfile();
 
+        newUserProfile.setUserId(userId);
         newUserProfile.setName(profileDTO.getName());
         newUserProfile.setDescription(profileDTO.getDescription());
         newUserProfile.setLocation(profileDTO.getLocation());

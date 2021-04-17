@@ -32,7 +32,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public UserProfile createProfile(User user) {
-        return profileRepository.save(new UserProfile(user.getId(), user.getName(), user.getUserType()));
+        return profileRepository.save(new UserProfile(user.getId(), user.getEmail(), user.getName(), user.getUserType()));
     }
 
     @Override
