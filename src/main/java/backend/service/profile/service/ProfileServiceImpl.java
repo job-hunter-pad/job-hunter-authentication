@@ -3,6 +3,8 @@ package backend.service.profile.service;
 import backend.service.authentication.model.User;
 import backend.service.profile.model.Review;
 import backend.service.profile.model.UserProfile;
+import backend.service.profile.model.UserProfilePhoto;
+import backend.service.profile.repository.ProfilePhotoRepository;
 import backend.service.profile.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,12 @@ import java.util.Optional;
 public class ProfileServiceImpl implements ProfileService {
 
     private final ProfileRepository profileRepository;
+    private final ProfilePhotoRepository profilePhotoRepository;
 
     @Autowired
-    public ProfileServiceImpl(ProfileRepository profileRepository) {
+    public ProfileServiceImpl(ProfileRepository profileRepository, ProfilePhotoRepository profilePhotoRepository) {
         this.profileRepository = profileRepository;
+        this.profilePhotoRepository = profilePhotoRepository;
     }
 
     @Override
@@ -75,5 +79,15 @@ public class ProfileServiceImpl implements ProfileService {
         }
 
         throw new NullPointerException();
+    }
+
+    @Override
+    public Optional<UserProfilePhoto> getUserProfilePhoto(String userId) {
+        return profilePhotoRepository.findById(userId);
+    }
+
+    @Override
+    public UserProfilePhoto updateProfilePhoto(UserProfilePhoto userProfilePhoto) {
+        return profilePhotoRepository.save(userProfilePhoto);
     }
 }
