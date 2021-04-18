@@ -10,6 +10,7 @@ import backend.service.authentication.model.User;
 import backend.service.authentication.model.UserType;
 import backend.service.authentication.repository.UserRepository;
 import backend.service.authentication.repository.token.JwtTokenUtil;
+import backend.service.profile.service.ProfileService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +33,9 @@ public class UserController {
 
     @Autowired
     private Producer kafkaProducer;
+
+    @Autowired
+    private ProfileService profileService;
 
     @PostMapping("/login")
     LoginResponse login(@RequestBody User user) {
@@ -75,6 +79,8 @@ public class UserController {
             final String token = jwtTokenUtil.generateToken(user);
             registerResponse.setSuccess(true);
             registerResponse.setLogin_token(token);
+
+            profileService.createProfile(user);
 
             // send validation email
             Email email = new Email();
