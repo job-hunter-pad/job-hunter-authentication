@@ -8,5 +8,4 @@ public class LoginResponse {
     public boolean success;
     public String login_token;
     public String fail_message;
-    public UserData userData;
 }
