@@ -3,7 +3,6 @@ package backend.service.authentication.controller;
 import backend.service.authentication.controller.requests.RegisterRequest;
 import backend.service.authentication.controller.responses.LoginResponse;
 import backend.service.authentication.controller.responses.RegisterResponse;
-import backend.service.authentication.controller.responses.UserData;
 import backend.service.authentication.controller.responses.ValidateEmailResponse;
 import backend.service.authentication.kafka.model.Email;
 import backend.service.authentication.kafka.producer.Producer;
@@ -50,7 +49,6 @@ public class UserController {
                 if (dbUser.isValid()) {
                     loginResponse.setSuccess(true);
                     final String token = jwtTokenUtil.generateToken(dbUser);
-                    loginResponse.setUserData(new UserData(dbUser.getId(), dbUser.getUserType()));
                     loginResponse.setLogin_token(token);
                 } else {
                     loginResponse.setSuccess(false);
