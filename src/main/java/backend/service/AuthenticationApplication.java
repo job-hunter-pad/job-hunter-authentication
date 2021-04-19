@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class}, scanBasePackages = {"backend.service.authentication", "backend.service.profile"})
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 @EnableMongoRepositories(basePackageClasses = {UserRepository.class, ProfileRepository.class, ProfilePhotoRepository.class})
 public class AuthenticationApplication {
 

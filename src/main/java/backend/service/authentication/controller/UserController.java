@@ -3,6 +3,7 @@ package backend.service.authentication.controller;
 import backend.service.authentication.controller.requests.RegisterRequest;
 import backend.service.authentication.controller.responses.LoginResponse;
 import backend.service.authentication.controller.responses.RegisterResponse;
+import backend.service.authentication.controller.responses.UserData;
 import backend.service.authentication.controller.responses.ValidateEmailResponse;
 import backend.service.authentication.kafka.model.Email;
 import backend.service.authentication.kafka.producer.Producer;
@@ -14,7 +15,6 @@ import backend.service.profile.service.ProfileService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,17 +25,20 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtil jwtTokenUtil;
 
-    @Autowired
-    private Producer kafkaProducer;
+    private final Producer kafkaProducer;
 
-    @Autowired
-    private ProfileService profileService;
+    private final ProfileService profileService;
+
+    public UserController(UserRepository userRepository, JwtTokenUtil jwtTokenUtil, Producer kafkaProducer, ProfileService profileService) {
+        this.userRepository = userRepository;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.kafkaProducer = kafkaProducer;
+        this.profileService = profileService;
+    }
 
     @PostMapping("/login")
     LoginResponse login(@RequestBody User user) {
@@ -47,6 +50,7 @@ public class UserController {
                 if (dbUser.isValid()) {
                     loginResponse.setSuccess(true);
                     final String token = jwtTokenUtil.generateToken(dbUser);
+                    loginResponse.setUserData(new UserData(dbUser.getId(), dbUser.getUserType()));
                     loginResponse.setLogin_token(token);
                 } else {
                     loginResponse.setSuccess(false);
