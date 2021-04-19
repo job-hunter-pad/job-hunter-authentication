@@ -20,7 +20,6 @@ import java.util.List;
 public class UserProfileController {
     private final ProfileService profileService;
 
-    @Autowired
     public UserProfileController(ProfileService profileService) {
         this.profileService = profileService;
     }
