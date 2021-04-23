@@ -21,6 +21,7 @@ public class UserProfile {
     private String description;
     private String phoneNumber;
     private List<Review> reviews;
+    private List<String> skills;
 
     public UserProfile(String userId, String email, String name, UserType userType) {
         this.email = email;
@@ -28,6 +29,7 @@ public class UserProfile {
         this.name = name;
         this.userType = userType;
         this.reviews = new ArrayList<>();
+        this.skills = new ArrayList<>();
     }
 
     public void addReview(Review review) {

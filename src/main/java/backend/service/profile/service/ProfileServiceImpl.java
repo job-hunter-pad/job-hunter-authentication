@@ -62,6 +62,9 @@ public class ProfileServiceImpl implements ProfileService {
             if (userProfile.getPhoneNumber() != null) {
                 storedUserProfile.setPhoneNumber(userProfile.getPhoneNumber());
             }
+            if (userProfile.getSkills() != null) {
+                storedUserProfile.setSkills(userProfile.getSkills());
+            }
 
             optionalProfile = Optional.of(profileRepository.save(storedUserProfile));
         }

@@ -5,7 +5,6 @@ import backend.service.profile.model.Review;
 import backend.service.profile.model.UserProfile;
 import backend.service.profile.model.UserProfilePhoto;
 import backend.service.profile.service.ProfileService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +52,7 @@ public class UserProfileController {
         newUserProfile.setDescription(profileDTO.getDescription());
         newUserProfile.setLocation(profileDTO.getLocation());
         newUserProfile.setPhoneNumber(profileDTO.getPhoneNumber());
+        newUserProfile.setSkills(profileDTO.getSkills());
 
         return profileService.updateProfile(newUserProfile).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND));
