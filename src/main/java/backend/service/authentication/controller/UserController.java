@@ -10,6 +10,8 @@ import backend.service.authentication.model.User;
 import backend.service.authentication.model.UserType;
 import backend.service.authentication.repository.UserRepository;
 import backend.service.authentication.repository.token.JwtTokenUtil;
+import backend.service.profile.kafka.producer.UserProfileProducer;
+import backend.service.profile.model.UserProfile;
 import backend.service.profile.service.ProfileService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,12 +33,18 @@ public class UserController {
     private final Producer kafkaProducer;
 
     private final ProfileService profileService;
+    private final UserProfileProducer userProfileProducer;
 
-    public UserController(UserRepository userRepository, JwtTokenUtil jwtTokenUtil, Producer kafkaProducer, ProfileService profileService) {
+    public UserController(UserRepository userRepository,
+                          JwtTokenUtil jwtTokenUtil,
+                          Producer kafkaProducer,
+                          ProfileService profileService,
+                          UserProfileProducer userProfileProducer) {
         this.userRepository = userRepository;
         this.jwtTokenUtil = jwtTokenUtil;
         this.kafkaProducer = kafkaProducer;
         this.profileService = profileService;
+        this.userProfileProducer = userProfileProducer;
     }
 
     @PostMapping("/login")
@@ -82,7 +90,8 @@ public class UserController {
             registerResponse.setSuccess(true);
             registerResponse.setLogin_token(token);
 
-            profileService.createProfile(user);
+            UserProfile userProfile = profileService.createProfile(user);
+            userProfileProducer.postUserProfile(userProfile);
 
             // send validation email
             Email email = new Email();

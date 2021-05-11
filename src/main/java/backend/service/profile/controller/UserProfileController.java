@@ -1,6 +1,7 @@
 package backend.service.profile.controller;
 
 import backend.service.profile.controller.dto.ProfileDTO;
+import backend.service.profile.kafka.producer.UserProfileProducer;
 import backend.service.profile.model.Review;
 import backend.service.profile.model.UserProfile;
 import backend.service.profile.model.UserProfilePhoto;
@@ -18,9 +19,11 @@ import java.util.List;
 @RestController
 public class UserProfileController {
     private final ProfileService profileService;
+    private final UserProfileProducer userProfileProducer;
 
-    public UserProfileController(ProfileService profileService) {
+    public UserProfileController(ProfileService profileService, UserProfileProducer userProfileProducer) {
         this.profileService = profileService;
+        this.userProfileProducer = userProfileProducer;
     }
 
     @GetMapping("/profile/{userId}")
@@ -37,7 +40,11 @@ public class UserProfileController {
     @PostMapping("/profile/{userId}/addReview")
     UserProfile addReviewToProfile(@PathVariable String userId, @RequestBody Review review) {
         try {
-            return profileService.addReview(userId, review);
+            UserProfile userProfile = profileService.addReview(userId, review);
+
+            userProfileProducer.postUserProfile(userProfile);
+
+            return userProfile;
         } catch (NullPointerException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -54,8 +61,12 @@ public class UserProfileController {
         newUserProfile.setPhoneNumber(profileDTO.getPhoneNumber());
         newUserProfile.setSkills(profileDTO.getSkills());
 
-        return profileService.updateProfile(newUserProfile).orElseThrow(() ->
+        UserProfile userProfile = profileService.updateProfile(newUserProfile).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        userProfileProducer.postUserProfile(userProfile);
+
+        return userProfile;
     }
 
     @GetMapping("/profile/{userId}/getPhoto")
