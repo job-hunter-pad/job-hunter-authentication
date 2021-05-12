@@ -43,6 +43,9 @@ public class JwtTokenUtil implements Serializable {
     }
 
     public Boolean isTokenExpired(String token) {
+        if (token == null || token.isEmpty()) {
+            return true;
+        }
         try {
             final Date expiration = getExpirationDateFromToken(token);
             return expiration.before(new Date());

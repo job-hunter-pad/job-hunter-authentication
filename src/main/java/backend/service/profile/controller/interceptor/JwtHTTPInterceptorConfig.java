@@ -8,15 +8,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class JwtHTTPInterceptorConfig implements WebMvcConfigurer {
     private final JwtTokenUtil jwtTokenUtil;
+    private final BearerExtractor bearerExtractor;
 
-    public JwtHTTPInterceptorConfig(JwtTokenUtil jwtTokenUtil) {
+    public JwtHTTPInterceptorConfig(JwtTokenUtil jwtTokenUtil, BearerExtractor bearerExtractor) {
         this.jwtTokenUtil = jwtTokenUtil;
+        this.bearerExtractor = bearerExtractor;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         WebMvcConfigurer.super.addInterceptors(registry);
-        registry.addInterceptor(new JwtHTTPInterceptor(jwtTokenUtil))
+        registry.addInterceptor(new JwtHTTPInterceptor(jwtTokenUtil, bearerExtractor))
                 .addPathPatterns("/profile/*");
     }
 }

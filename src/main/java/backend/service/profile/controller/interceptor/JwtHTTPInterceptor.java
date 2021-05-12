@@ -10,23 +10,22 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class JwtHTTPInterceptor implements HandlerInterceptor {
     private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String TOKEN_PREFIX = "Bearer ";
 
     private final JwtTokenUtil jwtTokenUtil;
+    private final BearerExtractor bearerExtractor;
 
-    public JwtHTTPInterceptor(JwtTokenUtil jwtTokenUtil) {
+    public JwtHTTPInterceptor(JwtTokenUtil jwtTokenUtil, BearerExtractor bearerExtractor) {
         this.jwtTokenUtil = jwtTokenUtil;
+        this.bearerExtractor = bearerExtractor;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String header = request.getHeader(AUTHORIZATION_HEADER);
-        if (header != null && header.startsWith(TOKEN_PREFIX)) {
-            String token = header.replace(TOKEN_PREFIX, "");
+        String token = bearerExtractor.extract(header);
 
-            if (!jwtTokenUtil.isTokenExpired(token)) {
-                return true;
-            }
+        if (!jwtTokenUtil.isTokenExpired(token)) {
+            return true;
         }
 
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
