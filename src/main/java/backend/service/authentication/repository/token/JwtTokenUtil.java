@@ -5,6 +5,7 @@ import backend.service.authentication.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -41,9 +42,13 @@ public class JwtTokenUtil implements Serializable {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 
-    private Boolean isTokenExpired(String token) {
-        final Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
+    public Boolean isTokenExpired(String token) {
+        try {
+            final Date expiration = getExpirationDateFromToken(token);
+            return expiration.before(new Date());
+        } catch (SignatureException ignored) {
+            return true;
+        }
     }
 
     public String generateToken(User user) {
@@ -65,8 +70,8 @@ public class JwtTokenUtil implements Serializable {
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 
-    public Boolean validateToken(String token, User user) {
+    public Boolean validateTokenUserId(String token, String userId) {
         final String id = getIdFromToken(token);
-        return (id.equals(user.getId()) && !isTokenExpired(token));
+        return !isTokenExpired(token) && id.equals(userId);
     }
 }
