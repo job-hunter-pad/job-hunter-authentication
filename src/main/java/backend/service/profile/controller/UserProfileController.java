@@ -1,6 +1,9 @@
 package backend.service.profile.controller;
 
+import backend.service.authentication.repository.token.JwtTokenUtil;
 import backend.service.profile.controller.dto.ProfileDTO;
+import backend.service.profile.controller.interceptor.BearerExtractor;
+import backend.service.profile.controller.interceptor.JwtHTTPInterceptor;
 import backend.service.profile.kafka.producer.UserProfileProducer;
 import backend.service.profile.model.Review;
 import backend.service.profile.model.UserProfile;
@@ -20,10 +23,17 @@ import java.util.List;
 public class UserProfileController {
     private final ProfileService profileService;
     private final UserProfileProducer userProfileProducer;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final BearerExtractor bearerExtractor;
 
-    public UserProfileController(ProfileService profileService, UserProfileProducer userProfileProducer) {
+    public UserProfileController(ProfileService profileService,
+                                 UserProfileProducer userProfileProducer,
+                                 JwtTokenUtil jwtTokenUtil,
+                                 BearerExtractor bearerExtractor) {
         this.profileService = profileService;
         this.userProfileProducer = userProfileProducer;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.bearerExtractor = bearerExtractor;
     }
 
     @GetMapping("/profile/{userId}")
@@ -38,7 +48,11 @@ public class UserProfileController {
     }
 
     @PostMapping("/profile/{userId}/addReview")
-    UserProfile addReviewToProfile(@PathVariable String userId, @RequestBody Review review) {
+    UserProfile addReviewToProfile(@PathVariable String userId, @RequestBody Review review, @RequestHeader(JwtHTTPInterceptor.AUTHORIZATION_HEADER) String header) {
+        if (!jwtTokenUtil.validateTokenUserId(bearerExtractor.extract(header), userId)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
         try {
             UserProfile userProfile = profileService.addReview(userId, review);
 
@@ -51,7 +65,11 @@ public class UserProfileController {
     }
 
     @PostMapping("/profile/{userId}/update")
-    UserProfile updateProfile(@PathVariable String userId, @RequestBody ProfileDTO profileDTO) {
+    UserProfile updateProfile(@PathVariable String userId, @RequestBody ProfileDTO profileDTO, @RequestHeader(JwtHTTPInterceptor.AUTHORIZATION_HEADER) String header) {
+        if (!jwtTokenUtil.validateTokenUserId(bearerExtractor.extract(header), userId)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
         UserProfile newUserProfile = new UserProfile();
 
         newUserProfile.setUserId(userId);
@@ -82,7 +100,11 @@ public class UserProfileController {
     }
 
     @PostMapping("/profile/{userId}/updatePhoto")
-    ResponseEntity<Void> updateProfilePhoto(@PathVariable String userId, @RequestParam("profilePhoto") MultipartFile file) {
+    ResponseEntity<Void> updateProfilePhoto(@PathVariable String userId, @RequestParam("profilePhoto") MultipartFile file, @RequestHeader(JwtHTTPInterceptor.AUTHORIZATION_HEADER) String header) {
+        if (!jwtTokenUtil.validateTokenUserId(bearerExtractor.extract(header), userId)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
         UserProfilePhoto userProfilePhoto;
         try {
             userProfilePhoto = new UserProfilePhoto(userId, file.getContentType(), file.getBytes());

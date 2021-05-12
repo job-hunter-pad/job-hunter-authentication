@@ -1,9 +1,11 @@
 package backend.service.authentication.controller;
 
 import backend.service.authentication.controller.requests.RegisterRequest;
+import backend.service.authentication.controller.requests.ValidateIdRequest;
 import backend.service.authentication.controller.responses.LoginResponse;
 import backend.service.authentication.controller.responses.RegisterResponse;
 import backend.service.authentication.controller.responses.ValidateEmailResponse;
+import backend.service.authentication.controller.responses.ValidateIdResponse;
 import backend.service.authentication.kafka.model.Email;
 import backend.service.authentication.kafka.producer.Producer;
 import backend.service.authentication.model.User;
@@ -114,6 +116,12 @@ public class UserController {
 
         }
         return registerResponse;
+    }
+
+    @PostMapping("/validateId")
+    ValidateIdResponse validateToken(@RequestBody ValidateIdRequest validateIdRequest) {
+        Boolean valid = jwtTokenUtil.validateTokenUserId(validateIdRequest.getToken(), validateIdRequest.getId());
+        return new ValidateIdResponse(valid);
     }
 
     @PostMapping("/validateEmail")
