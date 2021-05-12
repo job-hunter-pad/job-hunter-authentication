@@ -1,6 +1,7 @@
 package backend.service.profile.controller.interceptor;
 
 import backend.service.authentication.repository.token.JwtTokenUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
