@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtHTTPInterceptor implements HandlerInterceptor {
-    private static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String AUTHORIZATION_HEADER = "Authorization";
 
     private final JwtTokenUtil jwtTokenUtil;
     private final BearerExtractor bearerExtractor;
