@@ -32,6 +32,39 @@
 }
 ```
 
+### Validate Token ID
+
+| URL | API Gateway URL | Method |
+| ------ | ------ | ------ |
+| /validateId | /api/auth/validateId | POST |
+
+#### Description
+
+This Endpoint is used to check if the provided `id` is contained in the `token`
+
+Other services could verify if the current user has the rights to access certain resources
+
+#### Request
+
+RequestBody: ValidateIdRequest
+
+```json
+{
+  "id": "",
+  "token": ""
+}
+```
+
+#### Response
+
+ValidateIdResponse
+
+```json
+{
+  "valid": true
+}
+```
+
 ### Validate Email
 
 | URL | API Gateway URL | Method |
@@ -99,7 +132,6 @@ public enum UserType {
     FREELANCER,
     EMPLOYER
 }
-
 ```
 
 ### Update Profile
@@ -151,7 +183,6 @@ public enum UserType {
     FREELANCER,
     EMPLOYER
 }
-
 ```
 
 ### Get All Profiles
@@ -231,7 +262,6 @@ public enum UserType {
     FREELANCER,
     EMPLOYER
 }
-
 ```
 
 ### Get Profile Photo
