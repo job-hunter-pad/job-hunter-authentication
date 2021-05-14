@@ -104,12 +104,15 @@ public class UserController {
             final String validationUrl = "http://localhost:8090/validateEmail/" + account_key;
 
             email.setBody(
-                    "<h1>Welcome " + user.getName() + "</h1>" +
-                            "<br><br>" +
-                            "<h4>You are almost ready to start enjoying Job Hunter</h4>" +
-                            "<br>" +
-//                            "<p>" + validationUrl + "</p><br>" +
-                            "<a href=\"" + validationUrl + "\">Click here to confirm your account</a>"
+                    "<h1>Welcome, " + user.getName() + "!<h1>"+
+                    "<br><br>" +
+                    "<h4>You’re just one click away from getting started with Job Hunter. All you need to do is verify your email address to activate your account:</h4>" +
+                    "<br><br>" +
+                    "<a href=\"" + validationUrl + "\">Click here to confirm your account</a>" +
+                    "<br><br>" +
+                    "<h4>Thanks,<h4>" +
+                    "<br>" +
+                    "<h4>Job Hunter Team<h4>"
             );
 
             kafkaProducer.postEmail(email);
