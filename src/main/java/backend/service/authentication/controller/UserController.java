@@ -1,11 +1,9 @@
 package backend.service.authentication.controller;
 
 import backend.service.authentication.controller.requests.RegisterRequest;
+import backend.service.authentication.controller.requests.ResetPasswordRequest;
 import backend.service.authentication.controller.requests.ValidateIdRequest;
-import backend.service.authentication.controller.responses.LoginResponse;
-import backend.service.authentication.controller.responses.RegisterResponse;
-import backend.service.authentication.controller.responses.ValidateEmailResponse;
-import backend.service.authentication.controller.responses.ValidateIdResponse;
+import backend.service.authentication.controller.responses.*;
 import backend.service.authentication.kafka.model.Email;
 import backend.service.authentication.kafka.producer.Producer;
 import backend.service.authentication.model.User;
@@ -120,6 +118,69 @@ public class UserController {
         }
         return registerResponse;
     }
+    
+    @PostMapping("/sendResetPasswordEmail")
+    SendResetPasswordEmailResponse sendResetPasswordEmail(@RequestBody String userEmail) {
+        SendResetPasswordEmailResponse sendResetPasswordEmailResponse = new SendResetPasswordEmailResponse();
+
+        if (checkAccountExists(userEmail) == null) {
+            sendResetPasswordEmailResponse.setMessage("Account does not exist");
+        } else {
+            User user = userRepository.findByEmail(userEmail);
+
+            // send validation email
+            Email email = new Email();
+            email.setEmail(userEmail);
+            email.setSubject("Reset Password Job Hunter");
+
+            final String account_key = jwtTokenUtil.generateToken(email);
+            final String validationUrl = "http://localhost:8090/resetPassword/" + account_key;
+
+            email.setBody(
+                    "<h1>Hello, " + user.getName() + "!<h1>"+
+                            "<br><br>" +
+                            "<h4>You have requested a password reset. If this was not requested by you please ignore this email, otherwise click the link below </h4>" +
+                            "<br><br>" +
+                            "<a href=\"" + validationUrl + "\">Click here to reset your password</a>" +
+                            "<br><br>" +
+                            "<h4>Thanks,<h4>" +
+                            "<br>" +
+                            "<h4>Job Hunter Team<h4>"
+            );
+
+            kafkaProducer.postEmail(email);
+
+            sendResetPasswordEmailResponse.setMessage("Email sent successfully");
+        }
+
+        return sendResetPasswordEmailResponse;
+    }
+
+    @PostMapping("/resetPassword")
+    ResetPasswordResponse resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+        ResetPasswordResponse resetPasswordResponse = new ResetPasswordResponse();
+
+        String password = resetPasswordRequest.getPassword();
+        String confirmPassword = resetPasswordRequest.getConfirmPassword();
+        String userEmail = resetPasswordRequest.getEmail();
+
+        if(!password.equals(confirmPassword)) {
+            resetPasswordResponse.setMessage("Passwords do not match");
+        } else if (checkAccountExists(userEmail) == null){
+            resetPasswordResponse.setMessage("Account does not exist");
+        } else {
+            User user = userRepository.findByEmail(userEmail);
+
+            user.setPassword(password);
+
+            userRepository.save(user);
+
+            resetPasswordResponse.setMessage("Password changed successfully");
+        }
+
+        return resetPasswordResponse;
+    }
+
 
     @PostMapping("/validateId")
     ValidateIdResponse validateToken(@RequestBody ValidateIdRequest validateIdRequest) {
