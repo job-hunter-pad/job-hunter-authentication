@@ -19,7 +19,6 @@ public class JwtHTTPInterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         WebMvcConfigurer.super.addInterceptors(registry);
         registry.addInterceptor(new JwtHTTPInterceptor(jwtTokenUtil, bearerExtractor))
-                .addPathPatterns("/profile/*/addReview")
                 .addPathPatterns("/profile/*/update")
                 .addPathPatterns("/profile/*/updatePhoto");
     }
