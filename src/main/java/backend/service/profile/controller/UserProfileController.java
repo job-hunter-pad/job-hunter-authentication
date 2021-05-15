@@ -48,11 +48,7 @@ public class UserProfileController {
     }
 
     @PostMapping("/profile/{userId}/addReview")
-    UserProfile addReviewToProfile(@PathVariable String userId, @RequestBody Review review, @RequestHeader(JwtHTTPInterceptor.AUTHORIZATION_HEADER) String header) {
-        if (!jwtTokenUtil.validateTokenUserId(bearerExtractor.extract(header), userId)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
-
+    UserProfile addReviewToProfile(@PathVariable String userId, @RequestBody Review review) {
         try {
             UserProfile userProfile = profileService.addReview(userId, review);
 
