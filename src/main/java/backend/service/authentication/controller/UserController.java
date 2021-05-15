@@ -104,15 +104,13 @@ public class UserController {
             final String validationUrl = baseUrl + "/validateEmail/" + account_key;
 
             email.setBody(
-                    "<h1>Welcome, " + user.getName() + "!<h1>" +
-                            "<br><br>" +
+                    "<h1>Welcome, " + user.getName() + "!</h1>" +
                             "<h4>You’re just one click away from getting started with Job Hunter. All you need to do is verify your email address to activate your account:</h4>" +
-                            "<br><br>" +
+                            "<br>" +
                             "<a href=\"" + validationUrl + "\">Click here to confirm your account</a>" +
                             "<br><br>" +
-                            "<h4>Thanks,<h4>" +
-                            "<br>" +
-                            "<h4>Job Hunter Team<h4>"
+                            "<h4>Thanks, </h4>" +
+                            "<h4>Job Hunter Team</h4>"
             );
 
             kafkaProducer.postEmail(email);
@@ -141,15 +139,13 @@ public class UserController {
             final String validationUrl = baseUrl + "/resetPassword/" + account_key;
 
             email.setBody(
-                    "<h1>Hello, " + user.getName() + "!<h1>" +
-                            "<br><br>" +
+                    "<h1>Hello, " + user.getName() + "!</h1>" +
                             "<h4>You have requested a password reset. If this was not requested by you please ignore this email, otherwise click the link below </h4>" +
-                            "<br><br>" +
+                            "<br>" +
                             "<a href=\"" + validationUrl + "\">Click here to reset your password</a>" +
                             "<br><br>" +
-                            "<h4>Thanks,<h4>" +
-                            "<br>" +
-                            "<h4>Job Hunter Team<h4>"
+                            "<h4>Thanks, </h4>" +
+                            "<h4>Job Hunter Team</h4>"
             );
 
             kafkaProducer.postEmail(email);
