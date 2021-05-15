@@ -172,6 +172,7 @@ public class UserController {
             User user = userRepository.findByEmail(userEmail);
 
             user.setPassword(password);
+            encryptPassword(user);
 
             userRepository.save(user);
 
